@@ -183,6 +183,12 @@ footer {text-align:center;color:var(--muted);padding:25px 15px;font-size:10px}
     <div class="stat-value" id="lastRefresh" style="font-size:17px">Waiting...</div>
     <div class="stat-desc" id="refreshStatus">Auto refresh every 60 seconds</div>
   </div>
+  <div class="stat">
+    <div class="stat-label">Nearest Earthquake to Sri Lanka</div>
+    <div class="stat-value" id="closestMagnitude">--</div>
+    <div class="stat-desc" id="closestDetails">Waiting for data</div>
+    <div class="stat-desc" id="closestPlace" style="margin-top:6px">Waiting for data</div>
+  </div>
 </section>
 
 <section class="main-layout">
@@ -518,6 +524,28 @@ function updateStats(events) {
   }).length;
 
   document.getElementById('ioCount').textContent=io;
+
+  // Closest M4.5+ earthquake in the USGS past-day feed, measured from Colombo
+  const closestMagnitude=document.getElementById('closestMagnitude');
+  const closestDetails=document.getElementById('closestDetails');
+  const closestPlace=document.getElementById('closestPlace');
+  if(events.length) {
+    const closest=events.reduce((best,event)=>{
+      const c=event.geometry.coordinates;
+      const distance=calculateDistance(COLOMBO.lat,COLOMBO.lon,c[1],c[0]);
+      return distance<best.distance ? {event,distance} : best;
+    },{event:null,distance:Infinity});
+    const p=closest.event.properties;
+    const c=closest.event.geometry.coordinates;
+    const info=getDistanceInfo(c[1],c[0]);
+    closestMagnitude.textContent='M '+p.mag.toFixed(1);
+    closestDetails.textContent=Math.round(closest.distance).toLocaleString()+' km · '+info.direction+' of Sri Lanka · '+timeAgo(p.time);
+    closestPlace.textContent=p.place||'Unknown location';
+  } else {
+    closestMagnitude.textContent='None';
+    closestDetails.textContent='No M4.5+ events in the current feed';
+    closestPlace.textContent='';
+  }
 }
 
 /* ACTIVITY CHART */
