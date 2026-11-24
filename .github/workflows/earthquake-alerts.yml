@@ -1,0 +1,124 @@
+
+name: Sri Lanka Earthquake Alerts
+
+on:
+  schedule:
+    - cron: "*/5 * * * *"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  earthquake-monitor:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Check earthquakes and send alerts
+        env:
+          NTFY_TOPIC: ${{ secrets.NTFY_TOPIC }}
+        run: |
+          python - <<'PY'
+          import json, urllib.request, os, math
+
+          TOPIC = os.environ.get("NTFY_TOPIC", "").strip()
+          if not TOPIC:
+              raise SystemExit("Missing NTFY_TOPIC GitHub secret")
+
+          STATE_FILE = "seen-earthquakes.json"
+          try:
+              with open(STATE_FILE, "r") as f:
+                  seen = set(json.load(f))
+          except (FileNotFoundError, json.JSONDecodeError):
+              seen = set()
+
+          feed = "https://earthquake.usgs.gov/earthquakes/feed/v1.0/summary/4.5_day.geojson"
+          request = urllib.request.Request(feed, headers={"User-Agent":"SriLankaEarthquakeWatch/1.0"})
+          with urllib.request.urlopen(request, timeout=30) as response:
+              data = json.loads(response.read())
+
+          zones = {
+              "Sumatra-Andaman": (-2, 15, 90, 105),
+              "Arakan-Myanmar": (10, 25, 90, 100),
+              "Makran": (20, 27, 55, 70),
+              "Western Indian Ocean": (-15, 5, 40, 65)
+          }
+
+          def in_zone(lat, lon, b):
+              return b[0] <= lat <= b[1] and b[2] <= lon <= b[3]
+
+          def distance(lat1, lon1, lat2, lon2):
+              R = 6371
+              p1, p2 = math.radians(lat1), math.radians(lat2)
+              dp = math.radians(lat2-lat1)
+              dl = math.radians(lon2-lon1)
+              a = math.sin(dp/2)**2 + math.cos(p1)*math.cos(p2)*math.sin(dl/2)**2
+              return R * 2 * math.atan2(math.sqrt(a), math.sqrt(1-a))
+
+          new_ids = []
+
+          for event in data.get("features", []):
+              p = event.get("properties", {})
+              c = event.get("geometry", {}).get("coordinates", [0,0,0])
+              lon, lat, depth = c[0], c[1], c[2]
+              mag = p.get("mag")
+              event_id = event.get("id")
+              place = p.get("place", "Unknown location")
+
+              if not event_id or mag is None or event_id in seen:
+                  continue
+
+              matching_zones = [name for name, bounds in zones.items() if in_zone(lat, lon, bounds)]
+              km = distance(lat, lon, 6.9271, 79.8612)
+
+              global_alert = mag >= 6.5
+              regional_alert = mag >= 5.5 and bool(matching_zones)
+              nearby_shallow = mag >= 5.0 and depth <= 70 and km <= 1000
+
+              if not (global_alert or regional_alert or nearby_shallow):
+                  continue
+
+              level = "HIGH ATTENTION" if (global_alert or nearby_shallow) else "MONITOR"
+              zone_text = ", ".join(matching_zones) if matching_zones else "Outside designated zones"
+
+              message = (
+                  f"{level} - Earthquake detected\\n"
+                  f"Magnitude: {mag:.1f}\\n"
+                  f"Location: {place}\\n"
+                  f"Depth: {depth:.1f} km\\n"
+                  f"Distance from Colombo: {km:.0f} km\\n"
+                  f"Monitoring zone: {zone_text}\\n"
+                  f"USGS details: {p.get('url','')}"
+              )
+
+              req = urllib.request.Request(
+                  f"https://ntfy.sh/{TOPIC}",
+                  data=message.encode("utf-8"),
+                  headers={
+                      "Title": f"Earthquake Alert - {level}",
+                      "Priority": "4" if level == "HIGH ATTENTION" else "3",
+                      "Tags": "earthquake"
+                  },
+                  method="POST"
+              )
+
+              urllib.request.urlopen(req, timeout=20).read()
+              print(f"Notification sent: {event_id} M{mag}")
+              seen.add(event_id)
+              new_ids.append(event_id)
+
+          with open(STATE_FILE, "w") as f:
+              json.dump(sorted(seen), f, indent=2)
+
+          print(f"Completed. Newly alerted events: {len(new_ids)}")
+          PY
+
+      - name: Save alert history state
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add seen-earthquakes.json
+          git diff --cached --quiet || git commit -m "Update earthquake alert tracking"
+          git push
