@@ -61,6 +61,19 @@ button:hover {background:#1d3853}
 .event-meta {color:var(--muted);font-size:10px;margin-top:7px;line-height:1.6}
 .event-distance {color:#8ccaff;font-size:11px;font-weight:bold;margin-top:8px}
 .event-direction {color:#91b3d1;font-size:10px;margin-top:3px}
+
+/* Compact tsunami status and impact labels */
+.tsunami-banner {display:flex;align-items:center;justify-content:space-between;gap:14px;padding:13px 16px;margin-bottom:14px;border:1px solid #29445e;border-radius:14px;background:#102438}
+.tsunami-banner h3 {margin:0 0 5px;font-size:14px;color:#eaf4ff}
+.tsunami-banner p {margin:0;font-size:12px;line-height:1.5;color:#b7cce0}
+.tsunami-status-pill {flex-shrink:0;border:1px solid #775726;background:#3b2d17;color:#ffca69;padding:8px 11px;border-radius:999px;font-size:10px;font-weight:bold;letter-spacing:.4px}
+.assessment {display:inline-block;margin-top:7px;padding:4px 8px;border-radius:999px;font-size:10px;font-weight:bold;letter-spacing:.35px}
+.assessment-low {color:#9db5ca;background:#172a3b;border:1px solid #29445e}
+.assessment-monitor {color:#ffca69;background:#3b2d17;border:1px solid #775726}
+.assessment-high {color:#ff9aa7;background:#40212a;border:1px solid #7a3444}
+.high-attention {border-color:#7a3444}
+.monitor {border-color:#775726}
+@media(max-width:650px){.tsunami-banner{align-items:flex-start;flex-direction:column}.tsunami-status-pill{white-space:normal}}
 .empty {padding:40px 15px;text-align:center;color:var(--muted);font-size:12px}
 .chart-panel {margin-top:14px}
 .chart-title {font-size:13px;margin:5px 3px 15px}
@@ -464,7 +477,6 @@ function renderEventList(events) {
       </div>
       <div class="event-direction">🧭 ${info.direction} of Sri Lanka</div>
       <div class="assessment ${assessment.className}">${assessment.level}</div>
-      <div class="event-reason">${assessment.reason}</div>
     `;
 
     item.addEventListener('click',()=>{
