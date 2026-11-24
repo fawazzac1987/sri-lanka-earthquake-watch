@@ -439,12 +439,9 @@ function renderEventList(events) {
     return mag>=currentFilter&&place.includes(currentSearch.toLowerCase());
   });
 
-  filtered.sort((a,b)=>{
-    const ca=a.geometry.coordinates;
-    const cb=b.geometry.coordinates;
-    return calculateDistance(COLOMBO.lat,COLOMBO.lon,ca[1],ca[0])-
-           calculateDistance(COLOMBO.lat,COLOMBO.lon,cb[1],cb[0]);
-  });
+filtered.sort((a,b)=>{
+    return b.properties.time - a.properties.time;
+});
 
   if(!filtered.length) {
     list.innerHTML='<div class="empty">No earthquakes match your filter.</div>';
