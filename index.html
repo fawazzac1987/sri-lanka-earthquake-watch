@@ -5,6 +5,9 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Sri Lanka Earthquake Watch</title>
 
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
 
 <style>
@@ -14,12 +17,12 @@
   --blue:#56b4ff; --green:#36d399; --yellow:#f6b94a; --red:#fb6475;
 }
 * {box-sizing:border-box}
-body {margin:0;background:var(--bg);color:var(--text);font-family:Arial,Helvetica,sans-serif}
+body {margin:0;background:var(--bg);color:var(--text);font-family:Inter,system-ui,Segoe UI,Arial,sans-serif}
 header {padding:22px 30px;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid var(--border)}
 .brand {display:flex;align-items:center;gap:12px}
 .brand-icon {width:44px;height:44px;border-radius:14px;background:linear-gradient(135deg,#238be8,#5d58ed);display:grid;place-items:center;font-size:23px}
 .brand h1 {margin:0;font-size:20px}
-.brand-sub {font-size:11px;letter-spacing:1.5px;color:var(--muted);margin-top:6px}
+.brand-sub {font-size:11px;font-weight:600;letter-spacing:1.2px;color:var(--muted);margin-top:6px}
 .live-pill {color:#7de9b9;background:#102a24;border:1px solid #235b44;padding:10px 14px;border-radius:30px;font-size:11px;letter-spacing:1px}
 .live-pill span {display:inline-block;width:8px;height:8px;background:var(--green);border-radius:50%;margin-right:7px}
 .container {padding:22px 30px;max-width:1800px;margin:auto}
@@ -28,13 +31,19 @@ header {padding:22px 30px;display:flex;align-items:center;justify-content:space-
 .intro p {margin:5px 0;color:var(--muted);font-size:12px}
 .warning-text {color:#ffca76!important}
 .clock {text-align:right}
-.clock-time {font-size:24px;font-weight:bold}
-.clock-label {color:var(--muted);font-size:10px;margin-top:5px;letter-spacing:1px}
-.stats {display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:12px;margin-bottom:15px}
+.clock-time {font-size:24px;font-weight:700;font-variant-numeric:tabular-nums;letter-spacing:.04em}
+.clock-label {color:var(--muted);font-size:11px;font-weight:600;margin-top:5px;letter-spacing:.08em}
+.feed-status {margin-top:12px;text-align:right;display:flex;flex-direction:column;gap:5px}
+.feed-connected {display:flex;justify-content:flex-end;align-items:center;gap:7px;color:#91e8ba;font-size:11px;font-weight:700;letter-spacing:.04em}
+.feed-dot {width:7px;height:7px;background:var(--green);border-radius:50%;box-shadow:0 0 0 4px #55d5a022}
+.feed-refresh {font-size:12px;color:var(--text);font-weight:600}
+.feed-updated {font-size:11px;color:var(--muted);font-weight:500;font-variant-numeric:tabular-nums}
+.feed-timezone {font-size:10px;color:var(--muted);font-weight:600;letter-spacing:.04em}
+.stats {display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:15px}
 .stat {background:linear-gradient(135deg,var(--panel2),var(--panel));border:1px solid var(--border);border-radius:17px;padding:17px;min-height:108px}
-.stat-label {font-size:10px;color:var(--blue);letter-spacing:1px;text-transform:uppercase}
+.stat-label {font-size:11px;font-weight:600;color:var(--blue);letter-spacing:.7px;text-transform:uppercase}
 .stat-value {font-size:27px;font-weight:bold;margin:12px 0 6px}
-.stat-desc {color:var(--muted);font-size:11px}
+.stat-desc {color:var(--muted);font-size:12px;font-weight:500}
 .main-layout {display:grid;grid-template-columns:minmax(0,2.2fr) minmax(310px,1fr);gap:14px}
 .panel {background:var(--panel);border:1px solid var(--border);border-radius:18px;padding:13px;min-width:0}
 .panel-header {display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px;margin:2px 3px 12px}
@@ -94,7 +103,6 @@ footer {text-align:center;color:var(--muted);padding:25px 15px;font-size:10px}
 .leaflet-popup-content a {color:#69baff}
 
 @media(max-width:1050px) {
-  .stats {grid-template-columns:repeat(3,minmax(0,1fr))}
   .main-layout {grid-template-columns:1fr}
   .event-list {max-height:500px}
   #map {height:500px}
@@ -107,6 +115,8 @@ footer {text-align:center;color:var(--muted);padding:25px 15px;font-size:10px}
   .container {padding:14px}
   .intro {gap:15px;padding:15px}
   .clock-time {font-size:19px}
+  .feed-status {text-align:left}
+  .feed-connected {justify-content:flex-start}
   .stats {grid-template-columns:repeat(2,1fr);gap:9px}
   .stat {min-height:100px;padding:13px}
   .stat-value {font-size:23px}
@@ -121,17 +131,6 @@ footer {text-align:center;color:var(--muted);padding:25px 15px;font-size:10px}
   .controls {width:100%}
   .search {flex:1}
   #map {height:360px}
-}
-
-/* MOBILE ONLY: rearrange dashboard sections; desktop/tablet structure stays intact */
-@media(max-width:700px) {
-  .main-layout {display:flex;flex-direction:column}
-  .main-layout > div:first-child {display:contents}
-  .tsunami-banner {order:1}
-  .main-layout > div:nth-child(2) {order:2}
-  .chart-panel {order:3}
-  .main-layout > div:first-child > .panel {order:4}
-  .safety-panel {order:5}
 }
 </style>
 </head>
@@ -160,6 +159,12 @@ footer {text-align:center;color:var(--muted);padding:25px 15px;font-size:10px}
   <div class="clock">
     <div class="clock-time" id="clock">--:--:--</div>
     <div class="clock-label">SRI LANKA TIME · UTC+5:30</div>
+    <div class="feed-status">
+      <div class="feed-connected"><span class="feed-dot"></span><span id="refreshStatus">CONNECTING TO USGS</span></div>
+      <div class="feed-refresh">Auto refresh · 60 seconds</div>
+      <div class="feed-updated">Last updated · <span id="lastRefresh">Waiting for feed...</span></div>
+      <div class="feed-timezone">SRI LANKA TIME · UTC+5:30</div>
+    </div>
   </div>
 </section>
 
@@ -179,17 +184,7 @@ footer {text-align:center;color:var(--muted);padding:25px 15px;font-size:10px}
     <div class="stat-value" id="ioCount">--</div>
     <div class="stat-desc">M4.5+ events in defined zones</div>
   </div>
-  <div class="stat">
-    <div class="stat-label">Nearest Earthquake to Sri Lanka</div>
-    <div class="stat-value" id="closestMagnitude">--</div>
-    <div class="stat-desc" id="closestDetails">Waiting for data</div>
-    <div class="stat-desc" id="closestPlace" style="margin-top:6px">Waiting for data</div>
-  </div>
-  <div class="stat">
-    <div class="stat-label">Data refreshed</div>
-    <div class="stat-value" id="lastRefresh" style="font-size:17px">Waiting...</div>
-    <div class="stat-desc" id="refreshStatus">Live feed connected · Auto refresh every 60 seconds</div>
-  </div>
+
 </section>
 
 <section class="main-layout">
@@ -243,7 +238,7 @@ footer {text-align:center;color:var(--muted);padding:25px 15px;font-size:10px}
 
 <div class="panel">
   <div class="panel-header">
-    <div class="panel-title">⚡ Recent Earthquakes · Latest Events (24 Hours)</div>
+    <div class="panel-title">⚡ Recent earthquakes · Nearest to Sri Lanka</div>
     <input type="text" id="searchLocation" class="search" placeholder="Search location...">
   </div>
   <div id="eventList" class="event-list">
@@ -457,8 +452,12 @@ function renderEventList(events) {
     return mag>=currentFilter&&place.includes(currentSearch.toLowerCase());
   });
 
-  // SORT BY TIME — NEWEST FIRST
-  filtered.sort((a,b)=>b.properties.time-a.properties.time);
+  filtered.sort((a,b)=>{
+    const ca=a.geometry.coordinates;
+    const cb=b.geometry.coordinates;
+    return calculateDistance(COLOMBO.lat,COLOMBO.lon,ca[1],ca[0])-
+           calculateDistance(COLOMBO.lat,COLOMBO.lon,cb[1],cb[0]);
+  });
 
   if(!filtered.length) {
     list.innerHTML='<div class="empty">No earthquakes match your filter.</div>';
@@ -525,28 +524,6 @@ function updateStats(events) {
   }).length;
 
   document.getElementById('ioCount').textContent=io;
-
-  // Closest M4.5+ earthquake in the USGS past-day feed, measured from Colombo
-  const closestMagnitude=document.getElementById('closestMagnitude');
-  const closestDetails=document.getElementById('closestDetails');
-  const closestPlace=document.getElementById('closestPlace');
-  if(events.length) {
-    const closest=events.reduce((best,event)=>{
-      const c=event.geometry.coordinates;
-      const distance=calculateDistance(COLOMBO.lat,COLOMBO.lon,c[1],c[0]);
-      return distance<best.distance ? {event,distance} : best;
-    },{event:null,distance:Infinity});
-    const p=closest.event.properties;
-    const c=closest.event.geometry.coordinates;
-    const info=getDistanceInfo(c[1],c[0]);
-    closestMagnitude.textContent='M '+p.mag.toFixed(1);
-    closestDetails.textContent=Math.round(closest.distance).toLocaleString()+' km · '+info.direction+' of Sri Lanka · '+timeAgo(p.time);
-    closestPlace.textContent=p.place||'Unknown location';
-  } else {
-    closestMagnitude.textContent='None';
-    closestDetails.textContent='No M4.5+ events in the current feed';
-    closestPlace.textContent='';
-  }
 }
 
 /* ACTIVITY CHART */
@@ -611,17 +588,17 @@ async function loadEarthquakes() {
 
     renderAll();
 
-    refresh.textContent=new Date().toLocaleTimeString('en-US',{
+    refresh.textContent=new Date().toLocaleTimeString('en-GB',{
       timeZone:'Asia/Colombo',
-      hour:'2-digit',minute:'2-digit',second:'2-digit'
+      hour:'2-digit',minute:'2-digit',second:'2-digit',
+      hour12:false
     });
 
-    status.textContent='Live feed connected · Auto refresh every 60 seconds';
+    status.textContent='LIVE FEED CONNECTED';
 
   } catch(err) {
     console.error('USGS feed error:',err);
-    status.textContent='Feed error';
-    refresh.textContent='Connection failed';
+    status.textContent='FEED CONNECTION ERROR';
     document.getElementById('eventList').innerHTML=
       '<div class="empty">Unable to load USGS feed. Check connection and try again.</div>';
   }
