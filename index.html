@@ -121,6 +121,17 @@ footer {text-align:center;color:var(--muted);padding:25px 15px;font-size:10px}
   .search {flex:1}
   #map {height:360px}
 }
+
+/* MOBILE ONLY: rearrange dashboard sections; desktop/tablet structure stays intact */
+@media(max-width:700px) {
+  .main-layout {display:flex;flex-direction:column}
+  .main-layout > div:first-child {display:contents}
+  .tsunami-banner {order:1}
+  .main-layout > div:nth-child(2) {order:2}
+  .chart-panel {order:3}
+  .main-layout > div:first-child > .panel {order:4}
+  .safety-panel {order:5}
+}
 </style>
 </head>
 
@@ -225,7 +236,7 @@ footer {text-align:center;color:var(--muted);padding:25px 15px;font-size:10px}
 
 <div class="panel">
   <div class="panel-header">
-    <div class="panel-title">⚡ Recent earthquakes · Nearest to Sri Lanka</div>
+    <div class="panel-title">⚡ Recent Earthquakes · Latest Events</div>
     <input type="text" id="searchLocation" class="search" placeholder="Search location...">
   </div>
   <div id="eventList" class="event-list">
@@ -439,9 +450,8 @@ function renderEventList(events) {
     return mag>=currentFilter&&place.includes(currentSearch.toLowerCase());
   });
 
-filtered.sort((a,b)=>{
-    return b.properties.time - a.properties.time;
-});
+  // SORT BY TIME — NEWEST FIRST
+  filtered.sort((a,b)=>b.properties.time-a.properties.time);
 
   if(!filtered.length) {
     list.innerHTML='<div class="empty">No earthquakes match your filter.</div>';
