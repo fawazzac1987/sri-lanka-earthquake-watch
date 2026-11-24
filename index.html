@@ -30,7 +30,7 @@ header {padding:22px 30px;display:flex;align-items:center;justify-content:space-
 .clock {text-align:right}
 .clock-time {font-size:24px;font-weight:bold}
 .clock-label {color:var(--muted);font-size:10px;margin-top:5px;letter-spacing:1px}
-.stats {display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:15px}
+.stats {display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:12px;margin-bottom:15px}
 .stat {background:linear-gradient(135deg,var(--panel2),var(--panel));border:1px solid var(--border);border-radius:17px;padding:17px;min-height:108px}
 .stat-label {font-size:10px;color:var(--blue);letter-spacing:1px;text-transform:uppercase}
 .stat-value {font-size:27px;font-weight:bold;margin:12px 0 6px}
@@ -94,6 +94,7 @@ footer {text-align:center;color:var(--muted);padding:25px 15px;font-size:10px}
 .leaflet-popup-content a {color:#69baff}
 
 @media(max-width:1050px) {
+  .stats {grid-template-columns:repeat(3,minmax(0,1fr))}
   .main-layout {grid-template-columns:1fr}
   .event-list {max-height:500px}
   #map {height:500px}
