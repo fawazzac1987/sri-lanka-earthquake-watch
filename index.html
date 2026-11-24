@@ -72,6 +72,13 @@ button:hover {background:#1d3853}
 .event-distance {color:#8ccaff;font-size:11px;font-weight:bold;margin-top:8px}
 .event-direction {color:#91b3d1;font-size:10px;margin-top:3px}
 
+
+.stat-watch {min-height:108px}
+.watch-details {margin-top:10px;font-size:10px;line-height:1.6;color:var(--muted)}
+.watch-details > div:not(.watch-zone-title) {display:flex;justify-content:space-between;gap:8px}
+.watch-details b {color:var(--text);font-weight:600}
+.watch-zone-title {color:var(--blue);font-size:9px;letter-spacing:.8px;margin:8px 0 3px;font-weight:700}
+
 /* Compact tsunami status and impact labels */
 .tsunami-banner {display:flex;align-items:center;justify-content:space-between;gap:14px;padding:13px 16px;margin-bottom:14px;border:1px solid #29445e;border-radius:14px;background:#102438}
 .tsunami-banner h3 {margin:0 0 5px;font-size:14px;color:#eaf4ff}
@@ -192,10 +199,20 @@ footer {text-align:center;color:var(--muted);padding:25px 15px;font-size:10px}
     <div class="stat-value" id="strongest">--</div>
     <div class="stat-desc" id="strongestPlace">Waiting for data</div>
   </div>
-  <div class="stat">
+  <div class="stat stat-watch">
     <div class="stat-label">Indian Ocean watch zones</div>
     <div class="stat-value" id="ioCount">--</div>
-    <div class="stat-desc">M4.5+ events in defined zones</div>
+    <div class="stat-desc">M4.5+ events · Last 24 hours</div>
+    <div class="watch-details">
+      <div><span>Strongest</span><b id="ioStrongest">--</b></div>
+      <div><span>Shallow ≤70 km</span><b id="ioShallow">--</b></div>
+      <div><span>M5.5+</span><b id="ioStrongCount">--</b></div>
+      <div class="watch-zone-title">ZONE BREAKDOWN</div>
+      <div><span>Sumatra–Andaman</span><b id="zoneSumatra">--</b></div>
+      <div><span>Arakan / Myanmar</span><b id="zoneArakan">--</b></div>
+      <div><span>Makran</span><b id="zoneMakran">--</b></div>
+      <div><span>Western Indian Ocean</span><b id="zoneWestIO">--</b></div>
+    </div>
   </div>
   <div class="stat">
     <div class="stat-label">Nearest Earthquake to Sri Lanka</div>
@@ -538,6 +555,33 @@ function updateStats(events) {
   }).length;
 
   document.getElementById('ioCount').textContent=io;
+
+  const zoneCounts={
+    'Sumatra–Andaman':0,
+    'Arakan / Myanmar':0,
+    'Makran':0,
+    'Western Indian Ocean':0
+  };
+  const zoneEvents=events.filter(e=>{
+    const c=e.geometry.coordinates;
+    return isInIndianOceanZone(c[1],c[0]);
+  });
+  zoneEvents.forEach(e=>{
+    const c=e.geometry.coordinates;
+    const zone=watchZones.find(z=>{
+      const b=z.bounds;
+      return c[1]>=b[0][0]&&c[1]<=b[1][0]&&c[0]>=b[0][1]&&c[0]<=b[1][1];
+    });
+    if(zone&&Object.prototype.hasOwnProperty.call(zoneCounts,zone.name)) zoneCounts[zone.name]++;
+  });
+  const strongestInZones=zoneEvents.length?zoneEvents.reduce((a,b)=>a.properties.mag>b.properties.mag?a:b):null;
+  document.getElementById('ioStrongest').textContent=strongestInZones?'M '+strongestInZones.properties.mag.toFixed(1):'None';
+  document.getElementById('ioShallow').textContent=zoneEvents.filter(e=>e.geometry.coordinates[2]<=70).length;
+  document.getElementById('ioStrongCount').textContent=zoneEvents.filter(e=>e.properties.mag>=5.5).length;
+  document.getElementById('zoneSumatra').textContent=zoneCounts['Sumatra–Andaman'];
+  document.getElementById('zoneArakan').textContent=zoneCounts['Arakan / Myanmar'];
+  document.getElementById('zoneMakran').textContent=zoneCounts['Makran'];
+  document.getElementById('zoneWestIO').textContent=zoneCounts['Western Indian Ocean'];
 
   // Closest M4.5+ earthquake in the USGS past-day feed, measured from Colombo
   const closestMagnitude=document.getElementById('closestMagnitude');
