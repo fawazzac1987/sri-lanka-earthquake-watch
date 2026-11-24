@@ -1,37 +1,417 @@
 <!doctype html>
 <html lang="en">
 <head>
-<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Sri Lanka Earthquake Watch</title>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Sri Lanka Earthquake Watch | Seismic Monitor</title>
 <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
 <style>
-:root{--bg:#07111f;--panel:#101d2d;--panel2:#142338;--line:#25374d;--text:#e8f0fa;--muted:#93a9c0;--blue:#45b8ff;--cyan:#55e0d1;--amber:#ffbd5b;--red:#ff6475;--green:#52d39a}*{box-sizing:border-box}body{margin:0;background:radial-gradient(ellipse at top,#12253b 0,#07111f 55%);font-family:Inter,system-ui,Segoe UI,Arial;color:var(--text)}.wrap{max-width:1440px;margin:auto;padding:24px}.header{display:flex;align-items:center;justify-content:space-between;gap:16px;margin-bottom:20px}.brand{display:flex;align-items:center;gap:12px}.logo{width:42px;height:42px;border-radius:12px;background:linear-gradient(135deg,#36baff,#2b67db);display:grid;place-items:center;font-size:22px}.brand h1{font-size:22px;margin:0}.brand p{margin:4px 0 0;color:var(--muted);font-size:12px;letter-spacing:.08em;text-transform:uppercase}.status-pill{border:1px solid #28664d;background:#102d27;color:#83e4b5;padding:9px 13px;border-radius:999px;font-size:12px;white-space:nowrap}.grid{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:14px}.card{background:linear-gradient(180deg,var(--panel),#0c1928);border:1px solid var(--line);border-radius:16px;padding:16px;box-shadow:0 8px 28px #0002}.metric-label{font-size:12px;color:var(--muted);text-transform:uppercase;letter-spacing:.08em}.metric{font-size:28px;font-weight:700;margin-top:9px}.metric-sub{font-size:12px;color:var(--muted);margin-top:5px}.main{display:grid;grid-template-columns:1.55fr 1fr;gap:14px}.panel-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:12px}.panel-head h2{font-size:15px;margin:0}.panel-head small{color:var(--muted)}#map{height:470px;border-radius:12px;overflow:hidden;background:#0a1726}.map-card{padding:12px}.map-legend{display:flex;gap:14px;flex-wrap:wrap;padding:12px 4px 3px;color:var(--muted);font-size:12px}.dot{display:inline-block;width:10px;height:10px;border-radius:50%;margin-right:5px}.feed{max-height:470px;overflow:auto}.event{display:grid;grid-template-columns:58px 1fr auto;gap:10px;align-items:center;padding:12px 8px;border-bottom:1px solid #1e3043}.mag{font-size:18px;font-weight:800;color:#ffb44e}.event strong{display:block;font-size:13px}.event small{display:block;color:var(--muted);margin-top:4px;font-size:11px}.event time{font-size:11px;color:var(--muted);white-space:nowrap}.bottom{display:grid;grid-template-columns:1.2fr 1fr;gap:14px;margin-top:14px}.risk-list{display:grid;grid-template-columns:1fr 1fr;gap:10px}.zone{background:var(--panel2);border:1px solid var(--line);border-radius:12px;padding:12px}.zone b{display:block;font-size:13px}.zone span{font-size:11px;color:var(--muted);display:block;margin-top:5px}.alertbox{border:1px solid #4b3c28;background:linear-gradient(135deg,#241d13,#121d2b);border-radius:12px;padding:14px}.alertbox h3{margin:0 0 8px;font-size:14px;color:var(--amber)}.alertbox p{margin:0;color:var(--muted);font-size:12px;line-height:1.6}.links{display:flex;flex-wrap:wrap;gap:8px;margin-top:12px}.links a{font-size:12px;color:#87ccff;text-decoration:none;border:1px solid #274662;border-radius:8px;padding:8px 10px;background:#10243a}.footer{color:var(--muted);font-size:11px;line-height:1.6;margin-top:18px}.loading{color:var(--muted);padding:20px;text-align:center}.leaflet-popup-content{color:#182438}.refresh{background:#11243a;color:#d8ebff;border:1px solid #2d4964;padding:8px 11px;border-radius:9px;cursor:pointer}.refresh:hover{background:#1b3551}@media(max-width:900px){.grid{grid-template-columns:repeat(2,1fr)}.main,.bottom{grid-template-columns:1fr}.wrap{padding:14px}.header{align-items:flex-start}.brand h1{font-size:18px}#map{height:360px}.feed{max-height:430px}}@media(max-width:480px){.status-pill{font-size:10px;padding:7px 9px}.metric{font-size:24px}.event{grid-template-columns:52px 1fr}.event time{grid-column:2}.risk-list{grid-template-columns:1fr}}
-</style></head><body>
+:root {
+  --bg:#07101b;--panel:#0d1a29;--panel2:#112235;--line:#20344a;
+  --text:#e9f2fb;--muted:#91a8bf;--blue:#56b9ff;--cyan:#54dfd1;
+  --amber:#ffbf61;--red:#ff687c;--green:#55d5a0;--purple:#a89bff
+}
+*{box-sizing:border-box}
+body{margin:0;background:linear-gradient(140deg,#091625,#060d16 70%);
+font-family:Inter,system-ui,Segoe UI,Arial,sans-serif;color:var(--text)}
+.wrap{max-width:1500px;margin:auto;padding:22px}
+.top{display:flex;justify-content:space-between;align-items:center;gap:16px;margin-bottom:22px}
+.brand{display:flex;align-items:center;gap:12px}
+.logo{width:44px;height:44px;display:grid;place-items:center;border-radius:13px;
+background:linear-gradient(135deg,#1e91e7,#5b62e9);font-size:23px;box-shadow:0 8px 24px #1e91e733}
+.brand h1{font-size:20px;margin:0;letter-spacing:-.02em}
+.brand p{font-size:11px;color:var(--muted);margin:4px 0 0;text-transform:uppercase;letter-spacing:.13em}
+.live{border:1px solid #236148;background:#10291f;color:#91e8ba;border-radius:30px;
+padding:9px 12px;font-size:11px;letter-spacing:.06em;display:flex;align-items:center;gap:8px}
+.pulse{width:7px;height:7px;background:var(--green);border-radius:50%;box-shadow:0 0 0 4px #55d5a022}
+.intro{border:1px solid var(--line);border-radius:18px;padding:17px 20px;
+background:linear-gradient(110deg,#11283c,#0d1a29);display:flex;justify-content:space-between;
+align-items:center;gap:20px;margin-bottom:15px}
+.intro h2{font-size:17px;margin:0 0 5px}
+.intro p{font-size:12px;color:var(--muted);margin:0;line-height:1.55}
+.intro-right{text-align:right;min-width:160px}
+.clock{font-size:21px;font-weight:700;letter-spacing:.04em}
+.clocklabel{font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:.1em;margin-top:3px}
+.stats{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:14px}
+.card{background:linear-gradient(180deg,#0e1c2c,#0b1724);border:1px solid var(--line);
+border-radius:16px;padding:15px;box-shadow:0 10px 30px #00000018}
+.stat{position:relative;overflow:hidden}
+.stat:after{content:"";position:absolute;right:-22px;bottom:-34px;width:95px;height:95px;
+border-radius:50%;background:var(--accent,#56b9ff);opacity:.07}
+.label{font-size:10px;color:var(--muted);letter-spacing:.1em;text-transform:uppercase}
+.value{font-size:28px;font-weight:750;margin:8px 0 3px;letter-spacing:-.03em}
+.sub{font-size:11px;color:var(--muted)}
+.layout{display:grid;grid-template-columns:minmax(0,2.25fr) minmax(300px,1fr);gap:14px}
+.panel-title{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:12px}
+.panel-title h3{font-size:14px;margin:0}
+.panel-title .hint{font-size:10px;color:var(--muted)}
+.mapcard{padding:12px}
+#map{height:640px;border-radius:12px;overflow:hidden;background:#0b1522}
+.maptools{display:flex;gap:7px;flex-wrap:wrap;align-items:center}
+.btn,.select,.search{border:1px solid #29445d;background:#12263b;color:#e2f1ff;
+border-radius:8px;padding:8px 10px;font-size:11px}
+.btn{cursor:pointer}
+.btn:hover{background:#1b3550}
+.select{cursor:pointer}
+.search{min-width:140px;outline:none}
+.legend{display:flex;gap:13px;flex-wrap:wrap;padding:12px 4px 4px;font-size:10px;color:var(--muted)}
+.dot{display:inline-block;width:9px;height:9px;border-radius:50%;margin-right:5px}
+.eventlist{max-height:480px;overflow:auto;padding-right:3px}
+.event{display:grid;grid-template-columns:54px minmax(0,1fr);gap:9px;padding:12px 7px;
+border-bottom:1px solid #1b2b3d;align-items:start}
+.eventmag{font-size:17px;font-weight:800;padding-top:1px}
+.eventmain strong{display:block;font-size:12px;line-height:1.4}
+.eventmain small{display:block;color:var(--muted);font-size:10px;line-height:1.5;margin-top:4px}
+.eventmain a{font-size:10px;color:#81caff;text-decoration:none;display:inline-block;margin-top:5px}
+.timeago{font-size:10px;color:var(--muted);margin-top:5px}
+.bottom{display:grid;grid-template-columns:1.15fr 1fr 1fr;gap:14px;margin-top:14px}
+.zones{display:grid;grid-template-columns:1fr 1fr;gap:9px}
+.zone{background:#112235;border:1px solid #20374e;border-radius:11px;padding:11px}
+.zone strong{font-size:11px;display:block}
+.zone p{font-size:10px;line-height:1.5;color:var(--muted);margin:5px 0 0}
+.statuspanel{border:1px solid #51452f;background:linear-gradient(130deg,#211e15,#101c2a);
+border-radius:12px;padding:14px}
+.statuspanel .statusheadline{color:var(--amber);font-size:12px;font-weight:700}
+.statuspanel p{font-size:11px;color:var(--muted);line-height:1.6;margin:8px 0 0}
+.links{display:flex;gap:7px;flex-wrap:wrap;margin-top:11px}
+.links a{font-size:10px;color:#9bd3ff;text-decoration:none;border:1px solid #2a4a66;
+background:#11263b;border-radius:7px;padding:7px 9px}
+.chart{height:110px;display:flex;align-items:end;gap:5px;padding:9px 3px 19px;border-bottom:1px solid var(--line)}
+.barwrap{flex:1;height:100%;display:flex;align-items:end;position:relative}
+.bar{width:100%;min-height:2px;border-radius:3px 3px 0 0;
+background:linear-gradient(180deg,#55c4ff,#2775d8);opacity:.85}
+.barlabel{position:absolute;bottom:-17px;left:50%;transform:translateX(-50%);font-size:8px;color:var(--muted)}
+.chartnote{font-size:10px;color:var(--muted);margin-top:9px}
+.footer{margin-top:16px;color:#8096ab;font-size:10px;line-height:1.6;padding:0 3px}
+.warning{color:#f0bf70}
+.leaflet-popup-content{color:#142235}
+.leaflet-control-attribution{font-size:9px!important}
+.leaflet-popup-content a{color:#1375c8}
+.empty{padding:18px;text-align:center;color:var(--muted);font-size:12px}
+@media(max-width:980px){
+  .stats{grid-template-columns:repeat(2,1fr)}
+  .layout,.bottom{grid-template-columns:1fr}
+  .wrap{padding:14px}
+  #map{height:480px}
+  .eventlist{max-height:420px}
+}
+@media(max-width:520px){
+  .top{align-items:flex-start}
+  .brand h1{font-size:16px}
+  .brand p{font-size:9px}
+  .live{font-size:9px;padding:8px}
+  .intro{padding:14px;align-items:flex-start}
+  .intro h2{font-size:15px}
+  .intro-right{min-width:100px}
+  .clock{font-size:18px}
+  .value{font-size:24px}
+  .zones{grid-template-columns:1fr}
+  .maptools{justify-content:flex-start}
+  .search{min-width:100px;flex:1}
+  #map{height:350px}
+}
+</style>
+</head>
+<body>
 <div class="wrap">
-<header class="header"><div class="brand"><div class="logo">🌏</div><div><h1>Sri Lanka Earthquake Watch</h1><p>Global seismic activity · Indian Ocean focus</p></div></div><div class="status-pill">● LIVE FEED · USGS</div></header>
-<section class="grid">
-<div class="card"><div class="metric-label">M4.5+ · Past 24 hours</div><div class="metric" id="count24">—</div><div class="metric-sub">Global earthquakes</div></div>
-<div class="card"><div class="metric-label">Strongest · Past 24 hours</div><div class="metric" id="maxmag">—</div><div class="metric-sub" id="maxplace">Waiting for feed…</div></div>
-<div class="card"><div class="metric-label">Indian Ocean watch</div><div class="metric" id="ioCount">—</div><div class="metric-sub">M4.5+ events in watch regions</div></div>
-<div class="card"><div class="metric-label">Sri Lanka tsunami status</div><div class="metric" style="font-size:19px;color:var(--amber)>VERIFY OFFICIAL</div><div class="metric-sub">Dashboard does not issue warnings</div></div>
+
+<header class="top">
+  <div class="brand">
+    <div class="logo">🌏</div>
+    <div>
+      <h1>Sri Lanka Earthquake Watch</h1>
+      <p>Seismic monitor · Indian Ocean focus</p>
+    </div>
+  </div>
+  <div class="live"><span class="pulse"></span> USGS LIVE DATA</div>
+</header>
+
+<section class="intro">
+  <div>
+    <h2>Earthquake activity monitor</h2>
+    <p>Track global seismic events and keep an eye on Indian Ocean source regions.<br>
+    <span class="warning">Earthquake activity is not the same as an official tsunami threat.</span></p>
+  </div>
+  <div class="intro-right">
+    <div class="clock" id="slclock">--:--:--</div>
+    <div class="clocklabel">Sri Lanka time · UTC+5:30</div>
+  </div>
 </section>
-<section class="main">
-<div class="card map-card"><div class="panel-head"><h2>🌐 Earthquake Map</h2><button class="refresh" onclick="loadData()">↻ Refresh</button></div><div id="map"></div><div class="map-legend"><span><i class="dot" style="background:#52d39a"></i>M4.5–4.9</span><span><i class="dot" style="background:#ffbd5b"></i>M5–5.9</span><span><i class="dot" style="background:#ff6475"></i>M6+</span><span>Marker size reflects magnitude</span></div></div>
-<div class="card"><div class="panel-head"><h2>⚡ Latest M4.5+ Events</h2><small id="updated">Loading…</small></div><div class="feed" id="feed"><div class="loading">Loading earthquake feed…</div></div></div>
+
+<section class="stats">
+  <div class="card stat" style="--accent:var(--blue)">
+    <div class="label">M4.5+ · Last 24 hours</div>
+    <div class="value" id="count24">—</div>
+    <div class="sub">Global events in USGS feed</div>
+  </div>
+  <div class="card stat" style="--accent:var(--red)">
+    <div class="label">Strongest · Last 24 hours</div>
+    <div class="value" id="maxmag">—</div>
+    <div class="sub" id="maxplace">Waiting for feed…</div>
+  </div>
+  <div class="card stat" style="--accent:var(--amber)">
+    <div class="label">Indian Ocean watch zones</div>
+    <div class="value" id="ioCount">—</div>
+    <div class="sub">M4.5+ events in defined zones</div>
+  </div>
+  <div class="card stat" style="--accent:var(--green)">
+    <div class="label">Data refreshed</div>
+    <div class="value" id="refreshstamp" style="font-size:18px">—</div>
+    <div class="sub">Auto refresh every 60 seconds</div>
+  </div>
 </section>
+
+<section class="layout">
+  <div class="card mapcard">
+    <div class="panel-title">
+      <h3>🌐 Seismic map · Main view</h3>
+      <div class="maptools">
+        <select id="magfilter" class="select" onchange="renderEvents()">
+          <option value="4.5">M4.5+</option>
+          <option value="5">M5.0+</option>
+          <option value="6">M6.0+</option>
+        </select>
+        <button class="btn" onclick="loadData()">↻ Refresh now</button>
+      </div>
+    </div>
+    <div id="map"></div>
+    <div class="legend">
+      <span><i class="dot" style="background:#55d5a0"></i>M4.5–4.9</span>
+      <span><i class="dot" style="background:#ffbf61"></i>M5–5.9</span>
+      <span><i class="dot" style="background:#ff687c"></i>M6+</span>
+      <span>Marker size = magnitude</span>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="panel-title">
+      <h3>⚡ Recent earthquakes</h3>
+      <input id="eventsearch" class="search" placeholder="Search location…" oninput="renderEvents()">
+    </div>
+    <div class="eventlist" id="feed">
+      <div class="empty">Loading USGS data…</div>
+    </div>
+  </div>
+</section>
+
 <section class="bottom">
-<div class="card"><div class="panel-head"><h2>🌊 Indian Ocean Watch Zones</h2><small>Attention regions</small></div><div class="risk-list"><div class="zone"><b>Sumatra–Andaman</b><span>Primary tsunami source region for Sri Lanka</span></div><div class="zone"><b>Arakan / Myanmar</b><span>Eastern Bay of Bengal source zone</span></div><div class="zone"><b>Makran Coast</b><span>Arabian Sea tsunami source zone</span></div><div class="zone"><b>Western Indian Ocean</b><span>Monitor offshore events; source mechanics matter</span></div></div></div>
-<div class="card"><div class="panel-head"><h2>🚨 Official Tsunami Information</h2></div><div class="alertbox"><h3>Always verify tsunami status from authorities</h3><p>Earthquake magnitude or map proximity alone cannot determine whether Sri Lanka is threatened. This dashboard's regional highlighting is a screening aid—not a tsunami forecast or official alert.</p><div class="links"><a href="https://www.dmc.gov.lk/" target="_blank" rel="noopener">Sri Lanka DMC</a><a href="https://www.tsunami.gov/" target="_blank" rel="noopener">NOAA Tsunami</a><a href="https://earthquake.usgs.gov/earthquakes/map/" target="_blank" rel="noopener">USGS Earthquakes</a></div></div></div>
+  <div class="card">
+    <div class="panel-title"><h3>🌊 Indian Ocean source zones</h3><span class="hint">Monitor areas</span></div>
+    <div class="zones">
+      <div class="zone"><strong>Sumatra–Andaman</strong><p>Major regional tsunami source area east of Sri Lanka.</p></div>
+      <div class="zone"><strong>Arakan / Myanmar</strong><p>Eastern Bay of Bengal region.</p></div>
+      <div class="zone"><strong>Makran coast</strong><p>Arabian Sea source region near Pakistan–Iran.</p></div>
+      <div class="zone"><strong>Western Indian Ocean</strong><p>Offshore activity; fault motion and seabed displacement matter.</p></div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="panel-title"><h3>📈 24-hour event profile</h3><span class="hint">USGS M4.5+ feed</span></div>
+    <div class="chart" id="chart"><div class="empty">Chart loading…</div></div>
+    <div class="chartnote" id="chartnote">Counts grouped into 6 four-hour blocks.</div>
+  </div>
+
+  <div class="card">
+    <div class="panel-title"><h3>🚨 Sri Lanka tsunami status</h3></div>
+    <div class="statuspanel">
+      <div class="statusheadline">VERIFY WITH OFFICIAL SOURCES</div>
+      <p>This dashboard does not receive an official tsunami-warning feed. Earthquake magnitude, distance, and map color alone cannot confirm danger to Sri Lanka.</p>
+      <div class="links">
+        <a href="https://www.dmc.gov.lk/" target="_blank" rel="noopener">Sri Lanka DMC</a>
+        <a href="https://www.tsunami.gov/" target="_blank" rel="noopener">NOAA Tsunami</a>
+        <a href="https://earthquake.usgs.gov/earthquakes/map/" target="_blank" rel="noopener">USGS</a>
+      </div>
+    </div>
+  </div>
 </section>
-<div class="footer">Data source: USGS GeoJSON real-time feed. Refreshes approximately every 60 seconds. Preliminary earthquake parameters can change. This dashboard is informational only and is not an official emergency alert service. If you feel a strong or prolonged earthquake near the coast, move inland or to higher ground and follow official instructions.</div>
+
+<footer class="footer">
+Data source: USGS real-time GeoJSON feed. Updates approximately every 60 seconds.
+Event parameters are preliminary and may change. Informational monitoring only—not an official warning or emergency service.
+If you experience a strong or prolonged earthquake near the coast, move inland or to higher ground and follow local authorities.
+</footer>
 </div>
+
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 <script>
-const map=L.map('map').setView([0,75],3);L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png',{attribution:'© OpenStreetMap © CARTO'}).addTo(map);L.marker([7.8731,80.7718]).addTo(map).bindPopup('<b>Sri Lanka</b><br>Dashboard focus');let quakeLayer=L.layerGroup().addTo(map);
-const watchZones=[{name:'Sumatra–Andaman',latMin:-2,latMax:12,lonMin:90,lonMax:105},{name:'Arakan / Myanmar',latMin:10,latMax:24,lonMin:88,lonMax:100},{name:'Makran',latMin:20,latMax:28,lonMin:55,lonMax:68},{name:'Western Indian Ocean',latMin:-20,latMax:10,lonMin:45,lonMax:70}];
-function inZone(c){return watchZones.some(z=>c[1]>=z.latMin&&c[1]<=z.latMax&&c[0]>=z.lonMin&&c[0]<=z.lonMax)}function esc(s){return String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]))}function ago(t){let m=Math.round((Date.now()-t)/60000);return m<60?m+' min ago':Math.round(m/60)+' hr ago'}
-async function loadData(){try{const r=await fetch('https://earthquake.usgs.gov/earthquakes/feed/v1.0/summary/4.5_day.geojson',{cache:'no-store'});if(!r.ok)throw new Error('Feed unavailable');const data=await r.json();const features=data.features||[];const io=features.filter(f=>inZone(f.geometry.coordinates));document.getElementById('count24').textContent=features.length;document.getElementById('ioCount').textContent=io.length;const max=features.reduce((a,b)=>(b.properties.mag||0)>(a?.properties.mag||0)?b:a,null);document.getElementById('maxmag').textContent=max?'M '+max.properties.mag.toFixed(1):'—';document.getElementById('maxplace').textContent=max?max.properties.place:'No events';document.getElementById('updated').textContent='Updated '+new Date().toLocaleTimeString();quakeLayer.clearLayers();features.forEach(f=>{const [lon,lat,depth]=f.geometry.coordinates;const mag=f.properties.mag||0;const color=mag>=6?'#ff6475':mag>=5?'#ffbd5b':'#52d39a';const radius=Math.max(5,mag*2.4);const marker=L.circleMarker([lat,lon],{radius,color,fillColor:color,fillOpacity:.68,weight:1.5}).bindPopup(`<b>M ${mag.toFixed(1)}</b><br>${esc(f.properties.place)}<br>Depth: ${depth.toFixed(1)} km<br>${new Date(f.properties.time).toLocaleString()}<br><a href="${f.properties.url}" target="_blank">USGS event details</a>`);marker.addTo(quakeLayer)});
-const sorted=[...features].sort((a,b)=>b.properties.time-a.properties.time);document.getElementById('feed').innerHTML=sorted.slice(0,35).map(f=>{const mag=f.properties.mag||0;const color=mag>=6?'var(--red)':mag>=5?'var(--amber)':'var(--green)';return `<div class="event"><div class="mag" style="color:${color}">M ${mag.toFixed(1)}</div><div><strong>${esc(f.properties.place)}</strong><small>${(f.geometry.coordinates[2]).toFixed(1)} km depth · ${new Date(f.properties.time).toLocaleString()}</small></div><time>${ago(f.properties.time)}</time></div>`}).join('')||'<div class="loading">No M4.5+ events in the past 24 hours.</div>';
-}catch(e){document.getElementById('feed').innerHTML='<div class="loading">Unable to load USGS feed. Please refresh.</div>';document.getElementById('updated').textContent='Feed error';}}
-loadData();setInterval(loadData,60000);
-</script></body></html>
+const map = L.map('map').setView([2,78],3);
+L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png',{
+  attribution:'© OpenStreetMap © CARTO'
+}).addTo(map);
+
+L.marker([7.8731,80.7718]).addTo(map).bindPopup('<b>Sri Lanka</b><br>Monitoring focus');
+
+const zoneShapes = [
+  {name:'Sumatra–Andaman',bounds:[[-2,90],[12,105]],color:'#ffbf61'},
+  {name:'Arakan / Myanmar',bounds:[[10,88],[24,100]],color:'#a89bff'},
+  {name:'Makran',bounds:[[20,55],[28,68]],color:'#56b9ff'},
+  {name:'Western Indian Ocean',bounds:[[-20,45],[10,70]],color:'#54dfd1'}
+];
+
+zoneShapes.forEach(z=>{
+  L.rectangle(z.bounds,{color:z.color,weight:1,dashArray:'5 5',fillOpacity:.035})
+    .addTo(map).bindPopup(z.name+' watch region');
+});
+
+const quakeLayer = L.layerGroup().addTo(map);
+
+const watchZones = [
+  {latMin:-2,latMax:12,lonMin:90,lonMax:105},
+  {latMin:10,latMax:24,lonMin:88,lonMax:100},
+  {latMin:20,latMax:28,lonMin:55,lonMax:68},
+  {latMin:-20,latMax:10,lonMin:45,lonMax:70}
+];
+
+let allFeatures = [];
+
+function inZone(c){
+  return watchZones.some(z=>
+    c[1]>=z.latMin&&c[1]<=z.latMax&&c[0]>=z.lonMin&&c[0]<=z.lonMax
+  );
+}
+
+function esc(s){
+  return String(s).replace(/[&<>"']/g,c=>({
+    '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'
+  }[c]));
+}
+
+function ago(t){
+  const m=Math.max(0,Math.round((Date.now()-t)/60000));
+  return m<60?m+' min ago':Math.round(m/60)+' hr ago';
+}
+
+function magColor(m){
+  return m>=6?'#ff687c':m>=5?'#ffbf61':'#55d5a0';
+}
+
+function renderEvents(){
+  const minMag=Number(document.getElementById('magfilter').value||4.5);
+  const query=(document.getElementById('eventsearch').value||'').toLowerCase().trim();
+
+  const shown=allFeatures.filter(f=>
+    (f.properties.mag||0)>=minMag&&
+    (!query||String(f.properties.place).toLowerCase().includes(query))
+  ).sort((a,b)=>b.properties.time-a.properties.time);
+
+  const feed=document.getElementById('feed');
+
+  feed.innerHTML=shown.slice(0,35).map(f=>{
+    const m=f.properties.mag||0;
+    const c=magColor(m);
+
+    return `<div class="event">
+      <div class="eventmag" style="color:${c}">M ${m.toFixed(1)}</div>
+      <div class="eventmain">
+        <strong>${esc(f.properties.place)}</strong>
+        <small>${f.geometry.coordinates[2].toFixed(1)} km depth · ${new Date(f.properties.time).toLocaleString()}</small>
+        <div class="timeago">${ago(f.properties.time)}</div>
+        <a href="${f.properties.url}" target="_blank" rel="noopener">Open USGS event ↗</a>
+      </div>
+    </div>`;
+  }).join('')||'<div class="empty">No events match this filter.</div>';
+
+  updateChart(allFeatures);
+}
+
+function updateChart(features){
+  const now=Date.now();
+  const bins=Array(6).fill(0);
+
+  features.forEach(f=>{
+    const h=(now-f.properties.time)/3600000;
+    if(h>=0&&h<24){
+      const idx=Math.min(5,Math.floor(h/4));
+      bins[idx]++;
+    }
+  });
+
+  const max=Math.max(1,...bins);
+
+  document.getElementById('chart').innerHTML=bins.map((v,i=>`
+    <div class="barwrap">
+      <div class="bar" style="height:${Math.max(3,(v/max)*100)}%" title="${v} events"></div>
+      <span class="barlabel">${i*4}-${i*4+4}h</span>
+    </div>
+  `)).join('');
+
+  document.getElementById('chartnote').textContent=
+    'Counts grouped into 6 four-hour blocks (0–24 hours ago).';
+}
+
+async function loadData(){
+  const stamp=new Date().toLocaleTimeString('en-LK',{
+    hour:'2-digit',minute:'2-digit',second:'2-digit'
+  });
+
+  try{
+    const r=await fetch(
+      'https://earthquake.usgs.gov/earthquakes/feed/v1.0/summary/4.5_day.geojson',
+      {cache:'no-store'}
+    );
+
+    if(!r.ok) throw new Error('Feed unavailable');
+
+    const data=await r.json();
+    allFeatures=data.features||[];
+
+    const io=allFeatures.filter(f=>inZone(f.geometry.coordinates));
+
+    document.getElementById('count24').textContent=allFeatures.length;
+    document.getElementById('ioCount').textContent=io.length;
+
+    const max=allFeatures.reduce((a,b)=>
+      (b.properties.mag||0)>(a?.properties.mag||0)?b:a,null
+    );
+
+    document.getElementById('maxmag').textContent=
+      max?'M '+max.properties.mag.toFixed(1):'—';
+
+    document.getElementById('maxplace').textContent=
+      max?max.properties.place:'No events';
+
+    document.getElementById('refreshstamp').textContent=stamp;
+
+    quakeLayer.clearLayers();
+
+    allFeatures.forEach(f=>{
+      const [lon,lat,depth]=f.geometry.coordinates;
+      const mag=f.properties.mag||0;
+      const color=magColor(mag);
+      const radius=Math.max(5,mag*2.25);
+
+      L.circleMarker([lat,lon],{
+        radius,color,fillColor:color,fillOpacity:.7,weight:1.4
+      }).bindPopup(`
+        <b>M ${mag.toFixed(1)}</b><br>
+        ${esc(f.properties.place)}<br>
+        Depth: ${depth.toFixed(1)} km<br>
+        ${new Date(f.properties.time).toLocaleString()}<br>
+        <a href="${f.properties.url}" target="_blank" rel="noopener">USGS event details</a>
+      `).addTo(quakeLayer);
+    });
+
+    renderEvents();
+
+  }catch(e){
+    document.getElementById('refreshstamp').textContent='Feed error';
+    document.getElementById('feed').innerHTML=
+      '<div class="empty">Unable to load USGS feed. Check connection and try again.</div>';
+  }
+}
+
+function updateClock(){
+  document.getElementById('slclock').textContent=
+    new Date().toLocaleTimeString('en-LK',{
+      timeZone:'Asia/Colombo',
+      hour:'2-digit',minute:'2-digit',second:'2-digit',hour12:false
+    });
+}
+
+updateClock();
+setInterval(updateClock,1000);
+loadData();
+setInterval(loadData,60000);
+</script>
+</body>
+</html>
