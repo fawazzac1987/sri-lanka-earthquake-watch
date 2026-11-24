@@ -164,6 +164,14 @@ footer {text-align:center;color:var(--muted);padding:25px 15px;font-size:10px}
 <section class="main-layout">
 
 <div>
+  <div class="tsunami-banner" id="tsunamiBanner">
+    <div>
+      <h3>🌊 Tsunami Warning Status</h3>
+      <p id="tsunamiStatusText">Official warning status is not connected to this dashboard. Always check Sri Lanka DMC for official updates.</p>
+    </div>
+    <div class="tsunami-status-pill" id="tsunamiStatusPill">OFFICIAL ALERTS NOT CONNECTED</div>
+  </div>
+
   <div class="panel">
     <div class="panel-header">
       <div class="panel-title">🌐 Seismic map · Main view</div>
@@ -290,6 +298,46 @@ function getDistanceInfo(lat,lon) {
   return {distance,direction};
 }
 
+/* SRI LANKA RELEVANCE ASSESSMENT (NOT A TSUNAMI PREDICTION) */
+function getImpactAssessment(event) {
+  const p=event.properties;
+  const c=event.geometry.coordinates;
+  const mag=p.mag, lat=c[1], lon=c[0], depth=c[2];
+  const inZone=isInIndianOceanZone(lat,lon);
+  const distance=getDistanceInfo(lat,lon).distance;
+  if(inZone && mag>=6.5 && depth<=70) {
+    return {level:'HIGH ATTENTION',className:'assessment-high',eventClass:'high-attention',reason:'Strong, shallow earthquake in a defined Indian Ocean watch zone. Verify official tsunami bulletins.'};
+  }
+  if(inZone && mag>=5.5) {
+    return {level:'MONITOR',className:'assessment-monitor',eventClass:'monitor',reason:'Earthquake detected in a defined Indian Ocean watch zone. Monitor official updates.'};
+  }
+  if(mag>=6.5 && depth<=100 && distance<=3500) {
+    return {level:'MONITOR',className:'assessment-monitor',eventClass:'monitor',reason:'Strong, relatively shallow earthquake within regional distance of Sri Lanka. Check authoritative updates.'};
+  }
+  return {level:'LOW RELEVANCE',className:'assessment-low',eventClass:'',reason:'No elevated dashboard criteria met. This is not a confirmation of safety.'};
+}
+
+function updateTsunamiBanner(events) {
+  const recent=events.filter(e=>Date.now()-e.properties.time<=24*60*60*1000);
+  const high=recent.filter(e=>getImpactAssessment(e).level==='HIGH ATTENTION');
+  const monitor=recent.filter(e=>getImpactAssessment(e).level==='MONITOR');
+  const text=document.getElementById('tsunamiStatusText');
+  const pill=document.getElementById('tsunamiStatusPill');
+  if(high.length) {
+    text.textContent=`Dashboard assessment: ${high.length} high-attention earthquake(s) detected in the last 24 hours. This is automated screening only; check official tsunami authorities immediately.`;
+    pill.textContent='HIGH ATTENTION · VERIFY OFFICIALS';
+    pill.style.background='#40212a';pill.style.borderColor='#7a3444';pill.style.color='#ff9aa7';
+  } else if(monitor.length) {
+    text.textContent=`Dashboard assessment: ${monitor.length} earthquake(s) flagged for monitoring in the last 24 hours. No official warning feed is connected—check Sri Lanka DMC.`;
+    pill.textContent='MONITOR · CHECK DMC';
+    pill.style.background='#3b2d17';pill.style.borderColor='#775726';pill.style.color='#ffca69';
+  } else {
+    text.textContent='No earthquakes currently meet this dashboard’s elevated screening criteria in the last 24 hours. Official warning status is not connected—check Sri Lanka DMC.';
+    pill.textContent='OFFICIAL ALERTS NOT CONNECTED';
+    pill.style.background='#3a2a16';pill.style.borderColor='#7a5a2d';pill.style.color='#ffcf80';
+  }
+}
+
 /* USGS */
 const USGS_URL='https://earthquake.usgs.gov/earthquakes/feed/v1.0/summary/4.5_day.geojson';
 let allEvents=[];
@@ -344,6 +392,7 @@ function renderMapEvents(events) {
     if(mag<currentFilter) return;
 
     const info=getDistanceInfo(lat,lon);
+    const assessment=getImpactAssessment(event);
     const marker=L.circleMarker([lat,lon],{
       radius:Math.max(5,mag*2.2),
       fillColor:getMagnitudeColor(mag),
@@ -358,6 +407,8 @@ function renderMapEvents(events) {
       <b>Distance from Colombo: ${Math.round(info.distance).toLocaleString()} km</b><br>
       Direction: ${info.direction}<br>
       Time: ${formatTime(p.time)} Sri Lanka time<br>
+      <b>Dashboard assessment: ${assessment.level}</b><br>
+      ${assessment.reason}<br>
       <a href="${p.url}" target="_blank" rel="noopener">View USGS event details</a>
     `);
 
@@ -394,9 +445,10 @@ function renderEventList(events) {
     const c=event.geometry.coordinates;
     const lon=c[0],lat=c[1],depth=c[2],mag=p.mag;
     const info=getDistanceInfo(lat,lon);
+    const assessment=getImpactAssessment(event);
 
     const item=document.createElement('div');
-    item.className='event-item';
+    item.className='event-item '+assessment.eventClass;
 
     item.innerHTML=`
       <div class="event-top">
@@ -411,6 +463,8 @@ function renderEventList(events) {
         📍 ${Math.round(info.distance).toLocaleString()} km from Colombo
       </div>
       <div class="event-direction">🧭 ${info.direction} of Sri Lanka</div>
+      <div class="assessment ${assessment.className}">${assessment.level}</div>
+      <div class="event-reason">${assessment.reason}</div>
     `;
 
     item.addEventListener('click',()=>{
@@ -486,6 +540,7 @@ function renderAll() {
   renderEventList(allEvents);
   updateStats(allEvents);
   updateChart(allEvents);
+  updateTsunamiBanner(allEvents);
 }
 
 /* LOAD USGS FEED */
