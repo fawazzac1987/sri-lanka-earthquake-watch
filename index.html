@@ -90,7 +90,6 @@ button:hover {background:#1d3853}
 .assessment-high {color:#ff9aa7;background:#40212a;border:1px solid #7a3444}
 .high-attention {border-color:#7a3444}
 .monitor {border-color:#775726}
-@media(max-width:650px){.tsunami-banner{align-items:flex-start;flex-direction:column}.tsunami-status-pill{white-space:normal}}
 .empty {padding:40px 15px;text-align:center;color:var(--muted);font-size:12px}
 .chart-panel {margin-top:14px}
 .chart-title {font-size:13px;margin:5px 3px 15px}
@@ -106,6 +105,16 @@ button:hover {background:#1d3853}
 .official-links a {font-size:11px;color:#78bdff;text-decoration:none;padding:8px 10px;background:#142a3d;border:1px solid #29445e;border-radius:8px}
 .official-links a:hover {background:#1d3853}
 footer {text-align:center;color:var(--muted);padding:25px 15px;font-size:10px}
+.dashboard-footer {max-width:1800px;margin:0 auto;padding:20px 30px 28px}
+.footer-main {margin-top:0}
+.tsunami-combined {margin:0 0 15px}
+.tsunami-common-heading {color:#eaf4ff;font-size:15px;margin:0 0 14px;padding-bottom:11px;border-bottom:1px solid #29445e}
+.tsunami-screening-top {display:flex;align-items:center;justify-content:space-between;gap:14px;padding-bottom:12px;border-bottom:1px solid #66502a}
+.tsunami-screening-top h3 {margin:0 0 6px;color:#ffc76b;font-size:13px}
+.tsunami-screening-top p {margin:0;font-size:11px;color:#d6c5a6;line-height:1.6}
+.tsunami-safety-info {padding-top:12px}
+.tsunami-safety-info strong {color:#ffc76b;font-size:12px}
+@media(max-width:650px){.dashboard-footer{padding:16px 14px 22px}.tsunami-screening-top{align-items:flex-start;flex-direction:column}}
 .leaflet-popup-content-wrapper,.leaflet-popup-tip {background:#102234;color:#edf5ff}
 .leaflet-popup-content {font-size:12px;line-height:1.6}
 .leaflet-popup-content a {color:#69baff}
@@ -144,11 +153,9 @@ footer {text-align:center;color:var(--muted);padding:25px 15px;font-size:10px}
 @media(max-width:700px) {
   .main-layout {display:flex;flex-direction:column}
   .main-layout > div:first-child {display:contents}
-  .tsunami-banner {order:1}
   .main-layout > div:nth-child(2) {order:2}
   .chart-panel {order:3}
   .main-layout > div:first-child > .panel {order:4}
-  .safety-panel {order:5}
 }
 </style>
 </head>
@@ -177,6 +184,27 @@ footer {text-align:center;color:var(--muted);padding:25px 15px;font-size:10px}
   <div class="clock">
     <div class="clock-time" id="clock">--:--:--</div>
     <div class="clock-label">SRI LANKA TIME · UTC+5:30</div>
+  </div>
+</section>
+
+<section class="safety-panel tsunami-combined" aria-label="Earthquake and tsunami safety center">
+  <h3 class="tsunami-common-heading">🌊 Earthquake &amp; Tsunami Safety Center</h3>
+  <div class="tsunami-screening-top">
+    <div>
+      <h3>Current Screening Status</h3>
+      <p id="tsunamiStatusText">Official warning status is not connected to this dashboard. Always check Sri Lanka DMC for official updates.</p>
+    </div>
+    <div class="tsunami-status-pill" id="tsunamiStatusPill">OFFICIAL ALERTS NOT CONNECTED</div>
+  </div>
+  <div class="tsunami-safety-info">
+    <strong>⚠️ Tsunami safety information</strong>
+    <p>This dashboard displays earthquake data. It does not predict tsunamis or issue official tsunami warnings.</p>
+    <p>In the event of a strong or long earthquake near the coast, follow local authorities and move to higher ground when advised or when natural warning signs are present.</p>
+    <div class="official-links">
+      <a href="https://www.dmc.gov.lk/" target="_blank" rel="noopener">Sri Lanka DMC</a>
+      <a href="https://www.tsunami.gov/" target="_blank" rel="noopener">NOAA Tsunami</a>
+      <a href="https://earthquake.usgs.gov/" target="_blank" rel="noopener">USGS Earthquakes</a>
+    </div>
   </div>
 </section>
 
@@ -225,14 +253,6 @@ footer {text-align:center;color:var(--muted);padding:25px 15px;font-size:10px}
 <section class="main-layout">
 
 <div>
-  <div class="tsunami-banner" id="tsunamiBanner">
-    <div>
-      <h3>🌊 Tsunami Warning Status</h3>
-      <p id="tsunamiStatusText">Official warning status is not connected to this dashboard. Always check Sri Lanka DMC for official updates.</p>
-    </div>
-    <div class="tsunami-status-pill" id="tsunamiStatusPill">OFFICIAL ALERTS NOT CONNECTED</div>
-  </div>
-
   <div class="panel">
     <div class="panel-header">
       <div class="panel-title">🌐 Seismic map · Main view</div>
@@ -259,16 +279,7 @@ footer {text-align:center;color:var(--muted);padding:25px 15px;font-size:10px}
     <div class="chart" id="activityChart"></div>
   </div>
 
-  <div class="safety-panel">
-    <h3>⚠️ Tsunami safety information</h3>
-    <p>This dashboard displays earthquake data. It does not predict tsunamis or issue official tsunami warnings.</p>
-    <p>In the event of a strong or long earthquake near the coast, follow local authorities and move to higher ground when advised or when natural warning signs are present.</p>
-    <div class="official-links">
-      <a href="https://www.dmc.gov.lk/" target="_blank" rel="noopener">Sri Lanka DMC</a>
-      <a href="https://www.tsunami.gov/" target="_blank" rel="noopener">NOAA Tsunami</a>
-      <a href="https://earthquake.usgs.gov/" target="_blank" rel="noopener">USGS Earthquakes</a>
-    </div>
-  </div>
+
 </div>
 
 <div class="panel">
@@ -284,8 +295,8 @@ footer {text-align:center;color:var(--muted);padding:25px 15px;font-size:10px}
 </section>
 </div>
 
-<footer>
-  Sri Lanka Earthquake Watch · Data source: USGS · Awareness dashboard only · Not an official warning system
+<footer class="dashboard-footer">
+  <div class="footer-main">Sri Lanka Earthquake Watch · Data source: USGS · Awareness dashboard only · Not an official warning system</div>
 </footer>
 
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
