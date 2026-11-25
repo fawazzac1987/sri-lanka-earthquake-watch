@@ -51,6 +51,8 @@ header {padding:22px 30px;display:flex;align-items:center;justify-content:space-
 .strongest-context {margin-top:11px;padding-top:10px;border-top:1px solid var(--border)}
 .closest-context {margin-top:11px;padding-top:10px;border-top:1px solid var(--border)}
 .closest-location {display:flex;flex-direction:column;gap:3px;margin-top:10px}
+.closest-grid {grid-template-columns:1fr 1fr}
+.closest-grid b {line-height:1.4}
 .closest-location span {font-size:9px;color:var(--muted);text-transform:uppercase;letter-spacing:.5px}
 .closest-location b {font-size:10px;line-height:1.4;overflow-wrap:anywhere}
 .strongest-grid {display:grid;grid-template-columns:1fr 1fr;gap:9px 12px}
@@ -226,11 +228,9 @@ footer {text-align:center;color:var(--muted);padding:25px 15px;font-size:10px}
     <div class="stat-value" id="closestMagnitude">--</div>
     <div class="stat-desc strongest-place" id="closestPlace">Waiting for data</div>
     <div class="closest-context" id="closestContext" style="display:none">
-      <div class="strongest-grid">
+      <div class="strongest-grid closest-grid">
         <div><span>Time</span><b id="closestTime">--</b></div>
-        <div><span>Depth</span><b id="closestDepth">--</b></div>
-        <div><span>Distance from SL</span><b id="closestDistance">--</b></div>
-        <div><span>Direction</span><b id="closestDirection">--</b></div>
+        <div><span>Distance · Direction from SL</span><b><span id="closestDistance">--</span> · <span id="closestDirection">--</span></b></div>
       </div>
       <div class="closest-location"><span>Earthquake location</span><b id="closestExactLocation">--</b></div>
     </div>
