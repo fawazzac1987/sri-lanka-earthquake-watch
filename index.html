@@ -658,7 +658,6 @@ function updateStats(events) {
     closestMagnitude.textContent='M '+p.mag.toFixed(1);
     closestPlace.textContent=p.place||'Unknown location';
     document.getElementById('closestTime').textContent=timeAgo(p.time);
-    document.getElementById('closestDepth').textContent=Number(c[2]).toLocaleString(undefined,{maximumFractionDigits:1})+' km'+(c[2]<=70?' · Shallow':'');
     document.getElementById('closestDistance').textContent=Math.round(closest.distance).toLocaleString()+' km';
     document.getElementById('closestDirection').textContent=info.direction+' of Sri Lanka';
     document.getElementById('closestExactLocation').textContent=p.place||'Unknown location';
