@@ -59,7 +59,6 @@ header {padding:22px 30px;display:flex;align-items:center;justify-content:space-
 .strongest-badge.monitor {color:#ffca69;background:#3b2d17;border:1px solid #775726}
 .strongest-badge.high {color:#ff9aa7;background:#40212a;border:1px solid #7a3444}
 .strongest-relevance p {margin:6px 0 0;font-size:10px;line-height:1.45;color:var(--muted)}
-.strongest-tsunami {margin-top:8px;font-size:9px;line-height:1.4;color:var(--muted)}
 .main-layout {display:grid;grid-template-columns:minmax(0,2.2fr) minmax(310px,1fr);gap:14px}
 .panel {background:var(--panel);border:1px solid var(--border);border-radius:18px;padding:13px;min-width:0}
 .panel-header {display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px;margin:2px 3px 12px}
@@ -233,7 +232,6 @@ footer {text-align:center;color:var(--muted);padding:25px 15px;font-size:10px}
         <span class="strongest-badge" id="strongestRelevance">--</span>
         <p id="strongestReason">--</p>
       </div>
-      <div class="strongest-tsunami" id="strongestTsunami">USGS tsunami flag: --</div>
     </div>
   </div>
   <div class="stat stat-watch">
@@ -415,7 +413,7 @@ function getImpactAssessment(event) {
   if(mag>=6.5 && depth<=100 && distance<=3500) {
     return {level:'MONITOR',className:'assessment-monitor',eventClass:'monitor',reason:'Strong, relatively shallow earthquake within regional distance of Sri Lanka. Check authoritative updates.'};
   }
-  return {level:'LOW RELEVANCE',className:'assessment-low',eventClass:'',reason:'No elevated dashboard criteria met. This is not a confirmation of safety.'};
+  return {level:'LOW RELEVANCE',className:'assessment-low',eventClass:'',reason:'No Sri Lanka-specific screening criteria triggered for this earthquake.'};
 }
 
 function updateTsunamiBanner(events) {
@@ -591,8 +589,6 @@ function updateStats(events) {
     badge.textContent=assessment.level;
     badge.className='strongest-badge '+(assessment.level==='HIGH ATTENTION'?'high':assessment.level==='MONITOR'?'monitor':'low');
     document.getElementById('strongestReason').textContent=assessment.reason;
-    const tsunamiFlag=p.tsunami===1||p.tsunami===true?'Flagged by USGS':'Not flagged by USGS';
-    document.getElementById('strongestTsunami').textContent='USGS tsunami flag: '+tsunamiFlag+' · Not an official Sri Lanka clearance';
     strongestContext.style.display='block';
   } else {
     document.getElementById('strongest').textContent='None';
