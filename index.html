@@ -45,6 +45,21 @@ header {padding:22px 30px;display:flex;align-items:center;justify-content:space-
 .stat-label {font-size:10px;color:var(--blue);letter-spacing:1px;text-transform:uppercase}
 .stat-value {font-size:27px;font-weight:bold;margin:12px 0 6px}
 .stat-desc {color:var(--muted);font-size:11px}
+
+.stat-strongest {min-height:108px}
+.strongest-place {line-height:1.4;min-height:28px}
+.strongest-context {margin-top:11px;padding-top:10px;border-top:1px solid var(--border)}
+.strongest-grid {display:grid;grid-template-columns:1fr 1fr;gap:9px 12px}
+.strongest-grid div {display:flex;flex-direction:column;gap:3px;min-width:0}
+.strongest-grid span {font-size:9px;color:var(--muted);text-transform:uppercase;letter-spacing:.5px}
+.strongest-grid b {font-size:10px;line-height:1.35;overflow-wrap:anywhere}
+.strongest-relevance {margin-top:10px}
+.strongest-badge {display:inline-block;font-size:9px;font-weight:800;letter-spacing:.4px;border-radius:999px;padding:4px 7px}
+.strongest-badge.low {color:#9db5ca;background:#172a3b;border:1px solid #29445e}
+.strongest-badge.monitor {color:#ffca69;background:#3b2d17;border:1px solid #775726}
+.strongest-badge.high {color:#ff9aa7;background:#40212a;border:1px solid #7a3444}
+.strongest-relevance p {margin:6px 0 0;font-size:10px;line-height:1.45;color:var(--muted)}
+.strongest-tsunami {margin-top:8px;font-size:9px;line-height:1.4;color:var(--muted)}
 .main-layout {display:grid;grid-template-columns:minmax(0,2.2fr) minmax(310px,1fr);gap:14px}
 .panel {background:var(--panel);border:1px solid var(--border);border-radius:18px;padding:13px;min-width:0}
 .panel-header {display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px;margin:2px 3px 12px}
@@ -199,14 +214,27 @@ footer {text-align:center;color:var(--muted);padding:25px 15px;font-size:10px}
 
 <section class="stats">
   <div class="stat">
-    <div class="stat-label">M4.5+ · Last 24 hours</div>
+    <div class="stat-label">Earthquakes detected · Last 24 hours</div>
     <div class="stat-value" id="totalCount">--</div>
-    <div class="stat-desc">Global events in USGS feed</div>
+    <div class="stat-desc" id="totalCountDesc">Worldwide · M4.5+ earthquakes</div>
   </div>
-  <div class="stat">
+  <div class="stat stat-strongest">
     <div class="stat-label">Strongest · Last 24 hours</div>
     <div class="stat-value" id="strongest">--</div>
-    <div class="stat-desc" id="strongestPlace">Waiting for data</div>
+    <div class="stat-desc strongest-place" id="strongestPlace">Waiting for data</div>
+    <div class="strongest-context" id="strongestContext" style="display:none">
+      <div class="strongest-grid">
+        <div><span>Time</span><b id="strongestTime">--</b></div>
+        <div><span>Depth</span><b id="strongestDepth">--</b></div>
+        <div><span>Distance from SL</span><b id="strongestDistance">--</b></div>
+        <div><span>Direction</span><b id="strongestDirection">--</b></div>
+      </div>
+      <div class="strongest-relevance">
+        <span class="strongest-badge" id="strongestRelevance">--</span>
+        <p id="strongestReason">--</p>
+      </div>
+      <div class="strongest-tsunami" id="strongestTsunami">USGS tsunami flag: --</div>
+    </div>
   </div>
   <div class="stat stat-watch">
     <div class="stat-label">Indian Ocean watch zones</div>
@@ -544,14 +572,32 @@ function renderEventList(events) {
 /* STATS */
 function updateStats(events) {
   document.getElementById('totalCount').textContent=events.length;
+  document.getElementById('totalCountDesc').textContent=`${events.length} earthquakes detected worldwide · M4.5+`;
 
+  const strongestContext=document.getElementById('strongestContext');
   if(events.length) {
     const strongest=events.reduce((a,b)=>a.properties.mag>b.properties.mag?a:b);
-    document.getElementById('strongest').textContent='M '+strongest.properties.mag.toFixed(1);
-    document.getElementById('strongestPlace').textContent=strongest.properties.place||'Unknown location';
+    const p=strongest.properties;
+    const c=strongest.geometry.coordinates;
+    const info=getDistanceInfo(c[1],c[0]);
+    const assessment=getImpactAssessment(strongest);
+    document.getElementById('strongest').textContent='M '+p.mag.toFixed(1);
+    document.getElementById('strongestPlace').textContent=p.place||'Unknown location';
+    document.getElementById('strongestTime').textContent=timeAgo(p.time);
+    document.getElementById('strongestDepth').textContent=Number(c[2]).toLocaleString(undefined,{maximumFractionDigits:1})+' km'+(c[2]<=70?' · Shallow':'');
+    document.getElementById('strongestDistance').textContent=Math.round(info.distance).toLocaleString()+' km';
+    document.getElementById('strongestDirection').textContent=info.direction+' of Sri Lanka';
+    const badge=document.getElementById('strongestRelevance');
+    badge.textContent=assessment.level;
+    badge.className='strongest-badge '+(assessment.level==='HIGH ATTENTION'?'high':assessment.level==='MONITOR'?'monitor':'low');
+    document.getElementById('strongestReason').textContent=assessment.reason;
+    const tsunamiFlag=p.tsunami===1||p.tsunami===true?'Flagged by USGS':'Not flagged by USGS';
+    document.getElementById('strongestTsunami').textContent='USGS tsunami flag: '+tsunamiFlag+' · Not an official Sri Lanka clearance';
+    strongestContext.style.display='block';
   } else {
     document.getElementById('strongest').textContent='None';
     document.getElementById('strongestPlace').textContent='No events in feed';
+    strongestContext.style.display='none';
   }
 
   const io=events.filter(e=>{
